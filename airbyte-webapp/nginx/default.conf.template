@@ -1,13 +1,13 @@
 upstream api-server {
-    server $INTERNAL_API_HOST;
+    server airbyte-airbyte-server-svc:8001;
 }
 
 upstream connector-builder-server {
-   server $CONNECTOR_BUILDER_API_HOST;
+   server airbyte-airbyte-connector-builder-server-svc:80;
 }
 
 upstream keycloak {
-    server $KEYCLOAK_INTERNAL_HOST;
+    server localhost;
 }
 
 server {
@@ -19,7 +19,8 @@ server {
 
     location / {
         root   /usr/share/nginx/html;
-        
+        auth_basic "Welcome to Airbyte!!";
+        auth_basic_user_file /etc/nginx/.htpasswd/.htpasswd;
         location ~ ^/docs/.* {
             try_files $uri $uri/ =404;
         }
@@ -33,7 +34,7 @@ server {
         #                   belongs in an environment file.
         sub_filter </head>
                 '<script data-script="config-overwrites">
-                window.TRACKING_STRATEGY = "$TRACKING_STRATEGY";
+                window.TRACKING_STRATEGY = "segment";
                 </script></head>';
         sub_filter_once on;
     }
@@ -41,6 +42,9 @@ server {
     error_page   500 502 503 504  /50x.html;
     location = /50x.html {
         root   /usr/share/nginx/html;
+        auth_basic "Welcome to Airbyte!!";        auth_basic_user_file /etc/nginx/.htpasswd/.htpasswd;
+      auth_basic "Welcome to Airbyte!!";
+      auth_basic_user_file /etc/nginx/.htpasswd/.htpasswd;
     }
 
     location /api/ {
